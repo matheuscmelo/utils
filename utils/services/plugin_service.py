@@ -14,7 +14,7 @@ def install_plugin(plugin_repository):
     return exit_status == 0
 
 
-def get_plugin(plugin_module):
+def get_worker_plugin(plugin_module):
     try:
         plugin = import_module(plugin_module)
         plugin = plugin.WORKER_PLUGIN
@@ -24,6 +24,22 @@ def get_plugin(plugin_module):
     return plugin()
 
 
-def get_action_from_plugin(plugin_module, action):
-    plugin = get_plugin(plugin_module)
+
+def get_refresher_plugin(plugin_module):
+    try:
+        plugin = import_module(plugin_module)
+        plugin = plugin.REFRESHER_PLUGIN
+    except ImportError as e:
+        traceback.print_exc()
+        raise Exception("Plugin {} is not installed".format(plugin_module))
+    return plugin()
+
+
+def get_refresher_action_from_plugin(plugin_module, action):
+    plugin = get_refresher_plugin(plugin_module)
+    return plugin.ACTIONS.get(action)
+
+
+def get_worker_action_from_plugin(plugin_module, action):
+    plugin = get_worker_plugin(plugin_module)
     return plugin.ACTIONS.get(action)
