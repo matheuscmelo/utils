@@ -4,6 +4,7 @@ from datetime import datetime
 from hashlib import sha256
 from time import sleep
 
+
 class RefreshRequester(object):
 
     def __init__(self, queue, max_tries=5, timeout=15):
@@ -25,14 +26,18 @@ class RefreshRequester(object):
 
     def _wait_for_receive(self, work_id, data):
         self.redis.lpush(self.queue, json.dumps(data))
-        key, value = self.redis.brpop(work_id)
-        data = json.loads(value.decode())
-        if data.get('status') == 'processing':
-            return True
+        response = self.redis.brpop(work_id, timeout=self.timeout)
+        if response:
+            key, value = response
+            data = json.loads(value.decode())
+            if data.get('status') == 'processing':
+                return True
+
         return False
 
     def _wait_for_response(self, work_id):
         response = self.redis.brpop(work_id, timeout=self.timeout)
+        print(response)
         if response is not None:
             key, value = response
         if response is not None and value is not None:
