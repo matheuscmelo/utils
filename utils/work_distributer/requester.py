@@ -37,7 +37,6 @@ class RefreshRequester(object):
 
     def _wait_for_response(self, work_id):
         response = self.redis.brpop(work_id, timeout=self.timeout)
-        print(response)
         if response is not None:
             key, value = response
         if response is not None and value is not None:
