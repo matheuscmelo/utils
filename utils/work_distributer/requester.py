@@ -10,7 +10,7 @@ class RefreshRequester(object):
         self.redis = Redis(host='redis')
         self.queue = queue
         self.max_tries = max_tries
-        self.timeout = 10
+        self.timeout = timeout
 
     def block_request(self, data):
         work_id = self._generate_work_id()
@@ -35,7 +35,7 @@ class RefreshRequester(object):
         response = self.redis.brpop(work_id, timeout=self.timeout)
         if response is not None:
             key, value = response
-        if value is not None and response is not None:
+        if response is not None and value is not None:
             data = json.loads(value.decode())
             return data
         else:
